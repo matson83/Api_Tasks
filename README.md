@@ -166,7 +166,7 @@ in_progress
 
 A collection do Bruno pode ser baixada pelo Google Drive:
 
-https://drive.google.com/file/d/1tSrE80U0c3v1HaFBxCBjY1-U4aZbvIlW/view?usp=sharing
+https://drive.google.com/file/d/1eDtBtwrNc3tf-oBNxiH8NlrB9dCvNmQQ/view?usp=sharing
 
 Para importar no Bruno:
 
