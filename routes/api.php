@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [UserController::class, 'register']);
@@ -16,7 +17,8 @@ Route::prefix('prd')->middleware('auth:sanctum')->group(function () {
     Route::prefix('tasks')->group(function () {
         Route::get('/', [TaskController::class, 'index']);
         Route::post('/', [TaskController::class, 'store']);
-        Route::put('/{id}', [TaskController::class, 'update']);
+        Route::get('/{id}', [TaskController::class, 'show']);
+        Route::patch('/{id}', [TaskController::class, 'update']);
         Route::delete('/{id}', [TaskController::class, 'destroy']);
     });
 
