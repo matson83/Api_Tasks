@@ -1,58 +1,215 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# API Tasks
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API REST para cadastro de usuários, autenticação com token e gerenciamento de tasks por usuário autenticado.
 
-## About Laravel
+## Tecnologias utilizadas
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Docker
+- Laravel Sail
+- PHP 8.3+
+- Laravel 13
+- Laravel Sanctum
+- MySQL 8
+- Composer
+- Bruno para testar os endpoints
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Pré-requisitos
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Antes de iniciar, tenha instalado:
 
-## Learning Laravel
+- Docker
+- Docker Compose
+- Git
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Como o projeto usa Laravel Sail, não é necessário ter PHP, Composer, Node.js ou MySQL instalados diretamente na máquina. Eles rodam dentro dos containers.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Instalação
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Clone o projeto:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone git@github.com:matson83/Api_Tasks.git
+cd Api_Tasks
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Crie o arquivo de ambiente:
 
-## Contributing
+```bash
+cp .env.example .env
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Configure o banco no `.env` para usar o serviço `mysql` do Docker e se conecte ao banco:
 
-## Code of Conduct
+```env
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=api_tasks
+DB_USERNAME=sail
+DB_PASSWORD=password
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Suba os containers do Sail:
 
-## Security Vulnerabilities
+```bash
+./vendor/bin/sail up -d --build
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Gere a chave da aplicação:
 
-## License
+```bash
+./vendor/bin/sail artisan key:generate
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Migrations
+
+Rode as migrations:
+
+```bash
+./vendor/bin/sail artisan migrate
+```
+
+## Seeders
+
+Rode os seeders:
+
+```bash
+./vendor/bin/sail artisan db:seed
+```
+
+
+Usuários criados pelo seeder:
+
+| Nome | Email | Senha |
+| --- | --- | --- |
+| Admin Matson | admin@example.com | password |
+| User Cubo | cubo@example.com | password |
+| User 1 | user1@example.com | password |
+
+O `TaskSeeder` cria pelo menos 3 tasks para cada usuário.
+
+## Rodando a API
+
+ A URL será:
+
+```txt
+http://localhost:80
+```
+
+Para parar os containers:
+
+```bash
+./vendor/bin/sail down
+```
+
+## Autenticação
+
+Faça login:
+
+```http
+POST /api/login
+```
+
+Body:
+
+```json
+{
+  "email": "admin@example.com",
+  "password": "password"
+}
+```
+
+A resposta retorna um `access_token`. Use esse token nas rotas protegidas:
+
+```http
+Authorization: Bearer SEU_ACCESS_TOKEN
+```
+
+## Rotas principais
+
+Rotas públicas:
+
+```http
+POST /api/register
+POST /api/login
+```
+
+Rotas protegidas:
+
+```http
+GET    /api/prd/profile/user
+POST   /api/prd/profile/logout
+GET    /api/prd/tasks
+POST   /api/prd/tasks
+GET    /api/prd/tasks/{id}
+PATCH  /api/prd/tasks/{id}
+DELETE /api/prd/tasks/{id}
+```
+
+Filtros da listagem de tasks:
+
+```http
+GET /api/prd/tasks?status=pending
+GET /api/prd/tasks?created_at=2026-04-27
+GET /api/prd/tasks?status=completed&created_at=2026-04-27
+```
+
+Valores aceitos para `status`:
+
+```txt
+pending
+completed
+in_progress
+```
+
+## Collection do Bruno
+
+A collection do Bruno pode ser baixada pelo Google Drive:
+
+https://drive.google.com/file/d/1tSrE80U0c3v1HaFBxCBjY1-U4aZbvIlW/view?usp=sharing
+
+Para importar no Bruno:
+
+1. Abra o Bruno.
+2. Baixe e extraia a collection do link acima.
+3. Clique em `Open Collection`.
+4. Selecione a pasta extraída da collection.
+5. Selecione o environment `Local`.
+6. Execute o request `Auth / Login`.
+
+O request de login salva automaticamente o token na variável de environment:
+
+```txt
+access_token
+```
+
+Depois disso, os endpoints protegidos já usam:
+
+```http
+Authorization: Bearer {{access_token}}
+```
+
+Se estiver usando `APP_PORT=8000`, ajuste a variável `base_url` do environment `Local` para:
+
+```txt
+http://localhost:8000
+```
+
+## Exemplo de criação de task
+
+```http
+POST /api/prd/tasks
+```
+
+Body:
+
+```json
+{
+  "title": "Criacao de Task Bruno",
+  "description": "Ola",
+  "status": "pending"
+}
+```
+
+O `user_id` não deve ser enviado no body. Ele é definido automaticamente pelo usuário autenticado.
+
